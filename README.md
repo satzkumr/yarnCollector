@@ -1,2 +1,2 @@
 # yarnCollector
-Collect yarn related metrics or debug informationyes
+This tool is to collect yarn component (RM , NM ) metrics / information.
