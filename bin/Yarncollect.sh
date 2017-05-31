@@ -14,7 +14,7 @@ jsfile=./jstack
 rmlogger=./rmlogger
 metricfile=./metricfile
 schedulerfile=./schedulerfile
-jmpafile=./jmapfile
+jmapfile=./jmapfile
 rmurl=`maprcli urls -name resourcemanager | grep -v url`
 
 seconds=10				#Time interval to collect details
@@ -83,11 +83,14 @@ collectRMrest()
 
 	echo "====Collecting RM metrics from curl at $date ====" >>$metricfile
 
-	curl $rmurl/ws/v1/cluster/metrics >> $metricfile
+	metricurl=`echo $rmurl/ws/v1/cluster/metrics | tr -d ' '`
+	curl $metricurl >> $metricfile
 	
 	echo "====Collecting RM Scheduler metrics from curl at $date ====" >> $schedulerfile
 
-	curl $rmurl/ws/v1/cluster/scheduler >> $schedulerfile
+	schedulerurl=`echo $rmurl/ws/v1/cluster/scheduler | tr -d ' '`
+
+	curl $schedulerurl >> $schedulerfile
 
 	echo "**End of collection at $date ***" >> $schedulerfile
 	
@@ -112,7 +115,7 @@ fi
 if [ "$1" == "RM" ];
 then
 	echo "Collecting $1 related params..."
-	collectRM()
+	collectRM
 fi
 
 
