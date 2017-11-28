@@ -11,6 +11,8 @@ This tool is to collect yarn component (RM , NM ) metrics / information.
 5. Hprof for RM
 6. Jstack
 7. Node manager metrics
+8. Hadoop configuration
+8. Yarn cluster nodes list
 
 #Usage
 
@@ -23,9 +25,15 @@ Where collect target is
 	   Collect target = RM for Resource Manager related Metrics"
            Colelct target = NM for Nodemanager Related metrics"
 
+#Recent bug fixes
+
+1. Check the existance of process  NM/ RM while running on a designated node 
 
 #contacts 
 
-Please feel free to contact me
+Please feel free to contact me@
 
+Email:
 mrsathishkumar12@gmail.com
+Website:
+http://www.bigdataplumbers.com
