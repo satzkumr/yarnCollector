@@ -2,18 +2,16 @@
 
 #############################################################
 # This script collects YARN related metrics
-#
+# author: Sathishkumar Manimoorthy
+# Email : mrsathishkumar12@gmail.com 
 ############################################################
-# Author : Sathishkumar Manimoorthy
-# Contact: mrsathishkumar12@gmail.com
 
 #Sourcing runtime parameters
 
-source ./runProperties
 rundate=`date +%Y-%m-%d:%H:%M`
 
 #Preparing execution
-outdir="collectout_$rundate$1"
+outdir="yarn_metrics_$rundate$1"
 mkdir -p ./$outdir
 
 jsfile=./$outdir/jstack
@@ -24,28 +22,52 @@ jmapfile=./$outdir/jmapfile
 jmxfile=./$outdir/jmxfile
 applist=./$outdir/runningapps
 jmapdump=./$outdir/jmapdump_RM.hprof
-
+rmprocessinfo=./$outdir/rm_ps_out
+rmprocessinfo=./$outdir/nm_ps_out
+hadoopconf=./$outdir/hadoopconf
+hadoopclasspath=./$outdir/hadoopclasspath
+yarnclusternodes=./$outdir/yarnclusternodes
 seconds=10				#Time interval to collect details
 
 
 #getting Active RM URL 
 rmurl=`maprcli urls -name resourcemanager | grep -v url`
 
+#getting hadoop configurations
+hadoop conf >> $hadoopconf
 
+#getting effective classpath
+hadoop classpath >> $hadoopclasspath
+
+#getting node list on yarn cluster
+yarn node -list >> $yarnclusternodes
 #Function definitions goes here
 
 #Header function which calls other functions to collect other metrics on RM
 
 collectRM()
 {
+	rmpid=0
         rmpid=`ps -ef | grep resourcemanager | grep -v grep | awk '{print $2}'`
-        echo "RM is running as Pid : $rmpid" >> $rmlogger
 	
+        if [ -z $rmpid ]; then
+		echo "RM is not running on this node..Exitting"
+		exit 1;
+	else
+	        echo "RM is running as Pid : $rmpid" >> $rmlogger
+        fi
+ 
+	#Added additional check for existance of RM on current node
 	echo "Collecting jmap for Resource manager: $rmpid for every $seconds seconds" >> $rmlogger
 	
 	collectJmap $rmpid
 
 	#Going to infinite loop with sleep intervals to collect Jstack, application list, schduler metrics
+
+	echo "Collecting RM process state" 
+	ps -aux | grep $rmpid > $rmprocessinfo
+
+	#Start collecting java process metrics
 
 	while(true)
 	do
@@ -65,7 +87,21 @@ collectRM()
 collectNM()
 {
 	nmpid=`ps -ef | grep nodemanager | grep -v grep | awk '{print $2}'`
-	echo "NM is running as Pid : $nmpid"
+
+	#Doing additional check for presence of Nodemanager
+        if [ -z $nmpid ];then
+		echo "NM is not running on this node.. Exitting"
+ 	else
+		echo "NM is running as Pid : $nmpid"
+	fi
+
+
+        echo "Collecting NM process state" 
+        ps -aux | grep $nmpid > $rmprocessinfo
+
+	#Start collecting Metrics
+
+        #Going to infinite loop with sleep intervals to collect Jstack, application list, schduler metrics
 	while(true)
         do
 
